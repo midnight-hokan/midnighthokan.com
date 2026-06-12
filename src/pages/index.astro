@@ -7,7 +7,20 @@ import { getCollection } from 'astro:content';
 
 const posts = (await getCollection('blog')).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
-).slice(0, 5);
+).slice(0, 8);
+
+const tagColors = {
+  'ai': 'cyan',
+  'hardware': 'green',
+  'maker': 'amber',
+  'deep-dive': 'purple'
+};
+const tagNames = {
+  'ai': 'AI实验',
+  'hardware': '硬件折腾',
+  'maker': '造物计划',
+  'deep-dive': '深度解读'
+};
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -17,14 +30,13 @@ const posts = (await getCollection('blog')).sort(
 <body>
   <Header />
   <main>
-    <!-- Hero -->
     <section class="hero">
       <div class="hero-top">
         <div>
           <div class="sys-label">MIDNIGHT HOKAN</div>
           <h1>🌙 深夜补完计划</h1>
-          <p class="tagline">当世界入睡，我们开始补完。</p>
-          <p class="subtitle">AI 硬件玩家 / 本地大模型部署 / Maker / 内容创作者</p>
+          <p class="tagline">白天搬砖，深夜炼丹。</p>
+          <p class="subtitle">用自己的设备，跑自己的模型，造自己的东西。</p>
         </div>
         <div class="fleet-badge">
           <div class="badge-label">LOBSTER FLEET</div>
@@ -33,41 +45,33 @@ const posts = (await getCollection('blog')).sort(
       </div>
     </section>
 
-    <!-- Stats -->
+    <section class="tags-bar">
+      <a href="/blog" class="tag-pill all">全部</a>
+      <a href="/blog" class="tag-pill cyan">AI实验</a>
+      <a href="/blog" class="tag-pill green">硬件折腾</a>
+      <a href="/blog" class="tag-pill amber">造物计划</a>
+      <a href="/blog" class="tag-pill purple">深度解读</a>
+    </section>
+
     <section class="stats">
       <div class="stat-card">
         <div class="stat-label">ARTICLES</div>
         <div class="stat-value cyan">018</div>
       </div>
       <div class="stat-card">
+        <div class="stat-label">PROJECTS</div>
+        <div class="stat-value green">4</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">DEVICES</div>
+        <div class="stat-value amber">7</div>
+      </div>
+      <div class="stat-card">
         <div class="stat-label">GPU VRAM</div>
-        <div class="stat-value green">120G</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">INFERENCE</div>
-        <div class="stat-value amber">136 tok/s</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">FLEET</div>
-        <div class="stat-value">ONLINE</div>
+        <div class="stat-value">120G</div>
       </div>
     </section>
 
-    <!-- Fleet -->
-    <section class="fleet">
-      <h2 class="section-title">$ fleet status</h2>
-      <div class="fleet-grid">
-        <div class="node"><span class="dot green-dot"></span>大炮 — RTX PRO 6000 96GB — 主力推理</div>
-        <div class="node"><span class="dot green-dot"></span>四妹 — RTX 5090D 24GB — ComfyUI + Agent</div>
-        <div class="node"><span class="dot green-dot"></span>零点 — 16C32G 公网 — 出口 + 哨兵</div>
-        <div class="node"><span class="dot amber-dot"></span>二狗 — MacBook Pro — 移动指挥所</div>
-        <div class="node"><span class="dot amber-dot"></span>武松 — NUC 3070 — 诊断 Agent</div>
-        <div class="node"><span class="dot amber-dot"></span>六娃 — MacBook Air M1 — 巡检哨兵</div>
-        <div class="node"><span class="dot amber-dot"></span>三傻 — Raspberry Pi 4B — 边缘计算</div>
-      </div>
-    </section>
-
-    <!-- Latest Posts -->
     <section class="latest">
       <h2 class="section-title">$ cat latest.log</h2>
       <div class="post-list">
@@ -79,6 +83,14 @@ const posts = (await getCollection('blog')).sort(
         ))}
       </div>
       <a href="/blog" class="view-all">cd /blog/ →</a>
+    </section>
+
+    <section class="about-teaser">
+      <h2 class="section-title">$ whoami</h2>
+      <p>于光，煤炭行业投标管理岗，白天审标书，深夜搞 AI。</p>
+      <p>运营一支叫「龙虾舰队」的本地 AI 推理集群，七台设备各司其职，从 96GB 显存的工作站到树莓派，全部自托管。</p>
+      <p>同时在造机器人、做内容、写代码。这个站记录这一切。</p>
+      <a href="/about" class="view-all">cat /about →</a>
     </section>
   </main>
   <Footer />
@@ -107,8 +119,8 @@ const posts = (await getCollection('blog')).sort(
     margin-bottom: 0.5rem;
   }
   h1 { font-size: 1.8rem; font-weight: 500; margin-bottom: 0.5rem; }
-  .tagline { color: var(--text-secondary); font-size: 0.9rem; }
-  .subtitle { color: var(--text-muted); font-size: 0.75rem; margin-top: 0.3rem; }
+  .tagline { color: var(--text-secondary); font-size: 0.95rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.8rem; margin-top: 0.3rem; }
   .fleet-badge {
     text-align: right;
     font-size: 0.7rem;
@@ -120,6 +132,28 @@ const posts = (await getCollection('blog')).sort(
     color: var(--accent-green);
     margin-top: 4px;
   }
+
+  .tags-bar {
+    display: flex;
+    gap: 8px;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .tag-pill {
+    font-size: 0.7rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+  }
+  .tag-pill:hover { text-decoration: none; }
+  .tag-pill.all { border-color: var(--text-secondary); color: var(--text-primary); }
+  .tag-pill.cyan:hover, .tag-pill.cyan { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .tag-pill.green:hover, .tag-pill.green { border-color: var(--accent-green); color: var(--accent-green); }
+  .tag-pill.amber:hover, .tag-pill.amber { border-color: var(--accent-amber); color: var(--accent-amber); }
+  .tag-pill.purple:hover, .tag-pill.purple { border-color: #b388ff; color: #b388ff; }
 
   .stats {
     display: grid;
@@ -149,7 +183,7 @@ const posts = (await getCollection('blog')).sort(
   .stat-value.green { color: var(--accent-green); }
   .stat-value.amber { color: var(--accent-amber); }
 
-  .fleet, .latest {
+  .latest, .about-teaser {
     padding: 1.5rem 0;
     border-bottom: 1px solid var(--border);
   }
@@ -159,26 +193,6 @@ const posts = (await getCollection('blog')).sort(
     font-weight: 400;
     margin-bottom: 1rem;
   }
-  .fleet-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .node {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    padding: 6px 0;
-  }
-  .dot {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    margin-right: 8px;
-  }
-  .green-dot { background: var(--accent-green); }
-  .amber-dot { background: var(--accent-amber); }
-
   .post-list { display: flex; flex-direction: column; gap: 4px; }
   .post-item {
     display: flex;
@@ -197,11 +211,17 @@ const posts = (await getCollection('blog')).sort(
     font-size: 0.8rem;
     color: var(--accent-cyan);
   }
+  .about-teaser p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-sans);
+    line-height: 1.8;
+  }
 
   @media (max-width: 600px) {
     .hero-top { flex-direction: column; }
     .fleet-badge { text-align: left; margin-top: 1rem; }
     .stats { grid-template-columns: repeat(2, 1fr); }
-    .fleet-grid { grid-template-columns: 1fr; }
   }
 </style>
