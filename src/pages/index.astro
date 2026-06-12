@@ -1,49 +1,207 @@
 ---
 import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
----
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { getCollection } from 'astro:content';
 
+const posts = (await getCollection('blog')).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+).slice(0, 5);
+---
 <!doctype html>
-<html lang="en">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>🧑‍🚀 Hello, Astronaut!</h1>
-			<p>
-				Welcome to the official <a href="https://astro.build/">Astro</a> blog starter template. This template
-				serves as a lightweight, minimally-styled starting point for anyone looking to build a personal
-				website, blog, or portfolio with Astro.
-			</p>
-			<p>
-				This template comes with a few integrations already configured in your
-				<code>astro.config.mjs</code> file. You can customize your setup with
-				<a href="https://astro.build/integrations">Astro Integrations</a> to add tools like Tailwind,
-				React, or Vue to your project.
-			</p>
-			<p>Here are a few ideas on how to get started with the template:</p>
-			<ul>
-				<li>Edit this page in <code>src/pages/index.astro</code></li>
-				<li>Edit the site header items in <code>src/components/Header.astro</code></li>
-				<li>Add your name to the footer in <code>src/components/Footer.astro</code></li>
-				<li>Check out the included blog posts in <code>src/content/blog/</code></li>
-				<li>Customize the blog post page layout in <code>src/layouts/BlogPost.astro</code></li>
-			</ul>
-			<p>
-				Have fun! If you get stuck, remember to
-				<a href="https://docs.astro.build/">read the docs</a>
-				or <a href="https://astro.build/chat">join us on Discord</a> to ask questions.
-			</p>
-			<p>
-				Looking for a blog template with a bit more personality? Check out
-				<a href="https://github.com/Charca/astro-blog-template">astro-blog-template</a>
-				by <a href="https://twitter.com/Charca">Maxi Ferreira</a>.
-			</p>
-		</main>
-		<Footer />
-	</body>
+<html lang="zh-CN">
+<head>
+  <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+</head>
+<body>
+  <Header />
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="sys-label">MIDNIGHT HOKAN</div>
+          <h1>🌙 深夜补完计划</h1>
+          <p class="tagline">当世界入睡，我们开始补完。</p>
+          <p class="subtitle">AI 硬件玩家 / 本地大模型部署 / Maker / 内容创作者</p>
+        </div>
+        <div class="fleet-badge">
+          <div class="badge-label">LOBSTER FLEET</div>
+          <div class="badge-count">7 NODES</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats">
+      <div class="stat-card">
+        <div class="stat-label">ARTICLES</div>
+        <div class="stat-value cyan">018</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">GPU VRAM</div>
+        <div class="stat-value green">120G</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">INFERENCE</div>
+        <div class="stat-value amber">136 tok/s</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">FLEET</div>
+        <div class="stat-value">ONLINE</div>
+      </div>
+    </section>
+
+    <!-- Fleet -->
+    <section class="fleet">
+      <h2 class="section-title">$ fleet status</h2>
+      <div class="fleet-grid">
+        <div class="node"><span class="dot green-dot"></span>大炮 — RTX PRO 6000 96GB — 主力推理</div>
+        <div class="node"><span class="dot green-dot"></span>四妹 — RTX 5090D 24GB — ComfyUI + Agent</div>
+        <div class="node"><span class="dot green-dot"></span>零点 — 16C32G 公网 — 出口 + 哨兵</div>
+        <div class="node"><span class="dot amber-dot"></span>二狗 — MacBook Pro — 移动指挥所</div>
+        <div class="node"><span class="dot amber-dot"></span>武松 — NUC 3070 — 诊断 Agent</div>
+        <div class="node"><span class="dot amber-dot"></span>六娃 — MacBook Air M1 — 巡检哨兵</div>
+        <div class="node"><span class="dot amber-dot"></span>三傻 — Raspberry Pi 4B — 边缘计算</div>
+      </div>
+    </section>
+
+    <!-- Latest Posts -->
+    <section class="latest">
+      <h2 class="section-title">$ cat latest.log</h2>
+      <div class="post-list">
+        {posts.map((post) => (
+          <a href={"/blog/" + post.id + "/"} class="post-item">
+            <span class="post-date">{post.data.pubDate.toISOString().slice(0, 10)}</span>
+            <span class="post-title">{post.data.title}</span>
+          </a>
+        ))}
+      </div>
+      <a href="/blog" class="view-all">cd /blog/ →</a>
+    </section>
+  </main>
+  <Footer />
+</body>
 </html>
+
+<style>
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+  .hero {
+    padding: 3rem 0 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .sys-label {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  h1 { font-size: 1.8rem; font-weight: 500; margin-bottom: 0.5rem; }
+  .tagline { color: var(--text-secondary); font-size: 0.9rem; }
+  .subtitle { color: var(--text-muted); font-size: 0.75rem; margin-top: 0.3rem; }
+  .fleet-badge {
+    text-align: right;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+  .badge-count {
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: var(--accent-green);
+    margin-top: 4px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+  }
+  .stat-value {
+    font-size: 1.4rem;
+    font-weight: 500;
+    margin-top: 4px;
+    color: var(--text-primary);
+  }
+  .stat-value.cyan { color: var(--accent-cyan); }
+  .stat-value.green { color: var(--accent-green); }
+  .stat-value.amber { color: var(--accent-amber); }
+
+  .fleet, .latest {
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 0.85rem;
+    color: var(--accent-cyan);
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+  .fleet-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .node {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 6px 0;
+  }
+  .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  .green-dot { background: var(--accent-green); }
+  .amber-dot { background: var(--accent-amber); }
+
+  .post-list { display: flex; flex-direction: column; gap: 4px; }
+  .post-item {
+    display: flex;
+    gap: 1rem;
+    padding: 8px 0;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .post-item:hover { text-decoration: none; background: var(--bg-card); margin: 0 -8px; padding: 8px; border-radius: 4px; }
+  .post-date { color: var(--text-muted); font-size: 0.75rem; min-width: 90px; }
+  .post-title { color: var(--text-primary); }
+  .view-all {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: var(--accent-cyan);
+  }
+
+  @media (max-width: 600px) {
+    .hero-top { flex-direction: column; }
+    .fleet-badge { text-align: left; margin-top: 1rem; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .fleet-grid { grid-template-columns: 1fr; }
+  }
+</style>
