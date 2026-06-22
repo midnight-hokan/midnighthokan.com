@@ -1,0 +1,186 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+// ====== 战绩数据：每天比赛完，改这个数组 ======
+// res: "hit"命中 / "miss"失手 / "wait"未赛
+const days = [
+  {
+    tag: "DAY 1", date: "6/23",
+    matches: [
+      { fix: "阿根廷 vs 奥地利", pred: "阿根廷 73%", score: "", res: "wait" },
+      { fix: "法国 vs 伊拉克",   pred: "法国 84%",   score: "", res: "wait" },
+      { fix: "挪威 vs 塞内加尔", pred: "挪威 51%",   score: "", res: "wait" },
+      { fix: "约旦 vs 阿尔及利亚", pred: "阿尔及利亚 50%", score: "", res: "wait" },
+    ]
+  },
+];
+
+// 顶部累计（赛后手动更新这两组）
+const AI  = { hit: 0, total: 0 };
+const MKT = { hit: 0, total: 0 };
+const aiP  = AI.total  ? Math.round(AI.hit  / AI.total  * 100) : 0;
+const mktP = MKT.total ? Math.round(MKT.hit / MKT.total * 100) : 0;
+let verdict;
+if (AI.total === 0) verdict = "比赛尚未开始，第一份成绩单即将揭晓。";
+else if (aiP > mktP) verdict = `截至目前，AI 反超市场 ${aiP - mktP} 个百分点。`;
+else if (aiP < mktP) verdict = `截至目前，AI 暂时落后市场 ${mktP - aiP} 个百分点。能不能逆袭，往下追。`;
+else verdict = "截至目前，AI 与市场战成平手。";
+---
+
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <BaseHead title="AI 预测世界杯 · 战绩看板" description="一套自建的 AI 预测系统，每天预测世界杯比赛结果、赛后公开打分——看它能不能算赢市场。" />
+</head>
+<body>
+  <Header />
+  <main>
+    <section class="wc-hero">
+      <div class="wc-sys-label">MIDNIGHT HOKAN · WORLD CUP 2026</div>
+      <h1>别人看球，我让 AI 算球</h1>
+      <p class="wc-tagline">不荐彩，不喊单。一套自建的 AI 预测系统，每天赛前出预测、赛后公开认错——看它到底能不能算赢市场。</p>
+    </section>
+
+    <!-- 对决记分牌 -->
+    <section class="wc-board">
+      <div class="wc-board-label">累计命中率 · AI vs 市场</div>
+      <div class="wc-sb-grid">
+        <div class="wc-side ai">
+          <div class="wc-who">AI 系统</div>
+          <div class="wc-rate">{aiP}<span class="wc-pct">%</span></div>
+          <div class="wc-detail">{AI.hit} / {AI.total} 场</div>
+        </div>
+        <div class="wc-vs">VS</div>
+        <div class="wc-side mkt">
+          <div class="wc-who">市场</div>
+          <div class="wc-rate">{mktP}<span class="wc-pct">%</span></div>
+          <div class="wc-detail">{MKT.hit} / {MKT.total} 场</div>
+        </div>
+      </div>
+      <div class="wc-bars">
+        <div class="wc-bar-row">
+          <span class="wc-lab">AI</span>
+          <div class="wc-bar-track"><div class="wc-bar-fill ai" style={`width:${aiP}%`}></div></div>
+          <span class="wc-val">{aiP}%</span>
+        </div>
+        <div class="wc-bar-row">
+          <span class="wc-lab">市场</span>
+          <div class="wc-bar-track"><div class="wc-bar-fill mkt" style={`width:${mktP}%`}></div></div>
+          <span class="wc-val">{mktP}%</span>
+        </div>
+      </div>
+      <div class="wc-verdict">{verdict}</div>
+    </section>
+
+    <!-- 每日战报 -->
+    <section class="wc-log">
+      <h2 class="section-title">$ cat scorecard.log</h2>
+      {days.map((d) => {
+        const done = d.matches.filter((m) => m.res !== "wait");
+        const hit = d.matches.filter((m) => m.res === "hit").length;
+        return (
+          <div class="wc-day">
+            <div class="wc-day-top">
+              <span class="wc-day-tag">{d.tag}</span>
+              <span class="wc-day-date">{d.date}</span>
+              <span class="wc-day-score">
+                {done.length > 0
+                  ? <>{hit}/{done.length} <span class="wc-ico">{d.matches.map((m) => m.res === "hit" ? "✅" : m.res === "miss" ? "❌" : "·").join("")}</span></>
+                  : <span class="wc-wait-tag">待赛</span>}
+              </span>
+            </div>
+            <div class="wc-matches">
+              {d.matches.map((m) => (
+                <div class="wc-m">
+                  <span class={"wc-res " + m.res}>{m.res === "hit" ? "✓" : m.res === "miss" ? "✕" : "○"}</span>
+                  <span class="wc-fix">{m.score && <span class="wc-sc">{m.score} </span>}{m.fix}</span>
+                  <span class="wc-pred">AI <span class="wc-p">{m.pred}</span></span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </section>
+
+    <!-- 方法说明 -->
+    <section class="wc-note">
+      <p><strong>怎么打分？</strong> 每场比赛，看预测概率最高的结果（胜/平/负）是否命中，命中记 ✓。比分预测仅作参考——单一比分本就极难算准。<strong>诚实是这件事唯一的意义</strong>：算错的，照样写在这里。</p>
+      <a href="/blog/wc-ai-prediction/" class="view-all">读连载序言：别人看球，我让 AI 算球 →</a>
+    </section>
+  </main>
+  <Footer />
+</body>
+</html>
+
+<style>
+  main { max-width: 960px; margin: 0 auto; padding: 0 2rem; }
+
+  .wc-hero { padding: 3rem 0 2rem; border-bottom: 1px solid var(--border); }
+  .wc-sys-label { font-size: 0.7rem; letter-spacing: 4px; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .wc-hero h1 { font-size: 1.8rem; font-weight: 500; margin-bottom: 0.6rem; }
+  .wc-tagline { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; max-width: 640px; }
+
+  /* 记分牌 */
+  .wc-board {
+    margin: 1.8rem 0; padding: 1.8rem 1.5rem;
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+  }
+  .wc-board-label { font-size: 0.65rem; letter-spacing: 3px; color: var(--text-muted); text-align: center; margin-bottom: 1.4rem; }
+  .wc-sb-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; }
+  .wc-side { text-align: center; }
+  .wc-who { font-size: 0.75rem; letter-spacing: 2px; font-weight: 600; margin-bottom: 0.6rem; }
+  .wc-side.ai .wc-who { color: var(--accent-cyan); }
+  .wc-side.mkt .wc-who { color: var(--accent-amber); }
+  .wc-rate { font-size: 3rem; font-weight: 600; line-height: 1; }
+  .wc-side.ai .wc-rate { color: var(--accent-cyan); }
+  .wc-side.mkt .wc-rate { color: var(--accent-amber); }
+  .wc-pct { font-size: 0.42em; font-weight: 500; opacity: 0.7; margin-left: 2px; }
+  .wc-detail { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
+  .wc-vs { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 2px; }
+
+  .wc-bars { margin-top: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
+  .wc-bar-row { display: grid; grid-template-columns: 48px 1fr 44px; align-items: center; gap: 0.8rem; font-size: 0.8rem; }
+  .wc-lab { color: var(--text-muted); font-weight: 600; }
+  .wc-bar-track { height: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 99px; overflow: hidden; }
+  .wc-bar-fill { height: 100%; border-radius: 99px; transition: width 1s ease; }
+  .wc-bar-fill.ai { background: var(--accent-cyan); }
+  .wc-bar-fill.mkt { background: var(--accent-amber); }
+  .wc-val { text-align: right; color: var(--text-primary); font-weight: 600; }
+  .wc-verdict { text-align: center; margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px dashed var(--border); font-size: 0.85rem; color: var(--text-secondary); }
+
+  /* 每日战报 */
+  .wc-log { padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+  .section-title { font-size: 0.85rem; color: var(--accent-cyan); font-weight: 400; margin-bottom: 1rem; }
+  .wc-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+  .wc-day-top { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.9rem; }
+  .wc-day-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); background: var(--bg); padding: 3px 10px; border-radius: 5px; }
+  .wc-day-date { font-size: 0.72rem; color: var(--text-muted); }
+  .wc-day-score { margin-left: auto; font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+  .wc-ico { letter-spacing: 1px; margin-left: 4px; }
+  .wc-wait-tag { color: var(--text-muted); font-weight: 400; }
+  .wc-matches { display: flex; flex-direction: column; gap: 0; }
+  .wc-m { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 0.7rem; font-size: 0.82rem; padding: 0.5rem 0; border-top: 1px solid rgba(255,255,255,0.03); }
+  .wc-m:first-child { border-top: none; }
+  .wc-res.hit { color: var(--accent-green); }
+  .wc-res.miss { color: #e0556b; }
+  .wc-res.wait { color: var(--text-muted); }
+  .wc-fix { color: var(--text-primary); }
+  .wc-sc { color: var(--text-secondary); font-weight: 600; }
+  .wc-pred { font-size: 0.72rem; color: var(--text-muted); text-align: right; }
+  .wc-p { color: var(--accent-cyan); font-weight: 600; }
+
+  .wc-note { padding: 1.5rem 0; }
+  .wc-note p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; }
+  .wc-note strong { color: var(--text-primary); }
+  .view-all { display: inline-block; font-size: 0.8rem; color: var(--accent-cyan); }
+
+  @media (max-width: 600px) {
+    .wc-sb-grid { gap: 0.4rem; }
+    .wc-rate { font-size: 2.2rem; }
+    .wc-m { grid-template-columns: 16px 1fr; }
+    .wc-pred { grid-column: 2; text-align: left; }
+  }
+</style>
