@@ -3,36 +3,88 @@ import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-// ====== 战绩数据：每天比赛完，改这个数组 ======
-// res: "hit"命中 / "miss"失手 / "wait"未赛
+// ====== 战绩数据 ======
 const days = [
   {
     tag: "DAY 1", date: "6/23",
     matches: [
-      { fix: "阿根廷 vs 奥地利", pred: "阿根廷 73%", score: "", res: "wait" },
-      { fix: "法国 vs 伊拉克",   pred: "法国 84%",   score: "", res: "wait" },
-      { fix: "挪威 vs 塞内加尔", pred: "挪威 51%",   score: "", res: "wait" },
-      { fix: "约旦 vs 阿尔及利亚", pred: "阿尔及利亚 50%", score: "", res: "wait" },
+      { fix: "阿根廷 vs 奥地利", pred: "阿根廷 73%", predScore: "1-0", score: "2-0", res: "hit" },
+      { fix: "法国 vs 伊拉克",   pred: "法国 84%",   predScore: "1-0", score: "3-0", res: "hit" },
+      { fix: "挪威 vs 塞内加尔", pred: "挪威 51% ⭐", predScore: "1-1", score: "3-2", res: "hit" },
+      { fix: "约旦 vs 阿尔及利亚", pred: "阿尔及利亚 50%", predScore: "1-1", score: "1-2", res: "hit" },
+    ]
+  },
+  {
+    tag: "DAY 2", date: "6/24",
+    matches: [
+      { fix: "葡萄牙 vs 乌兹别克斯坦", pred: "葡萄牙 67%", predScore: "1-0", score: "5-0", res: "hit" },
+      { fix: "英格兰 vs 加纳",   pred: "英格兰 86%",   predScore: "1-0", score: "0-0", res: "miss" },
+      { fix: "巴拿马 vs 克罗地亚", pred: "克罗地亚 51%", predScore: "1-1", score: "", res: "wait" },
+      { fix: "哥伦比亚 vs 刚果(金)", pred: "哥伦比亚 75%", predScore: "1-0", score: "", res: "wait" },
     ]
   },
 ];
 
-// 顶部累计（赛后手动更新这两组）
-const AI  = { hit: 0, total: 0 };
-const MKT = { hit: 0, total: 0 };
+// 累计命中（手动更新：Day1=4/4, Day2暂=1/2已出）
+const AI  = { hit: 5, total: 6 };
+const MKT = { hit: 5, total: 6 };
 const aiP  = AI.total  ? Math.round(AI.hit  / AI.total  * 100) : 0;
 const mktP = MKT.total ? Math.round(MKT.hit / MKT.total * 100) : 0;
 let verdict;
 if (AI.total === 0) verdict = "比赛尚未开始，第一份成绩单即将揭晓。";
 else if (aiP > mktP) verdict = `截至目前，AI 反超市场 ${aiP - mktP} 个百分点。`;
 else if (aiP < mktP) verdict = `截至目前，AI 暂时落后市场 ${mktP - aiP} 个百分点。能不能逆袭，往下追。`;
-else verdict = "截至目前，AI 与市场战成平手。";
+else verdict = `截至目前，AI 与市场战成平手。目前 ${AI.hit}/${AI.total} 场命中。`;
+
+// ====== 虚拟组合数据 ======
+// status: "win" / "lose" / "wait"
+const portfolioDays = [
+  {
+    tag: "DAY 1", date: "6/23", capital: 1000,
+    bets: {
+      claude: [
+        { pick: "阿根廷-奥地利 小2.5", amount: 350, odds: 1.83, status: "win",  logic: "压舱·三方印证" },
+        { pick: "挪威胜",              amount: 300, odds: 2.30, status: "win",  logic: "模型独到·最好看" },
+        { pick: "法国-伊拉克 小3.5",   amount: 200, odds: 1.30, status: "win",  logic: "压舱·拉高命中" },
+        { pick: "约旦胜阿尔及利亚",     amount: 150, odds: 6.00, status: "lose", logic: "博冷·图个心跳" },
+      ],
+      deepseek: [],  // 待补
+      glm: [],       // 待补
+    }
+  },
+];
+
+// 计算盈亏
+function calcPnL(bets) {
+  if (!bets || bets.length === 0) return { pnl: 0, wins: 0, total: 0, capital: 0, hasData: false };
+  let pnl = 0, wins = 0, total = 0, capital = 0;
+  for (const b of bets) {
+    capital += b.amount;
+    if (b.status === "win") { pnl += b.amount * (b.odds - 1); wins++; total++; }
+    else if (b.status === "lose") { pnl -= b.amount; total++; }
+  }
+  return { pnl: Math.round(pnl), wins, total, capital, hasData: true };
+}
+
+// 累计所有天的盈亏
+function totalPnL(ai) {
+  let pnl = 0, wins = 0, total = 0, capital = 0;
+  for (const d of portfolioDays) {
+    const r = calcPnL(d.bets[ai]);
+    pnl += r.pnl; wins += r.wins; total += r.total; capital += r.capital;
+  }
+  return { pnl, wins, total, capital, hasData: total > 0 };
+}
+
+const cTotal = totalPnL("claude");
+const dTotal = totalPnL("deepseek");
+const gTotal = totalPnL("glm");
 ---
 
 <!doctype html>
 <html lang="zh-CN">
 <head>
-  <BaseHead title="AI 预测世界杯 · 战绩看板" description="一套自建的 AI 预测系统，每天预测世界杯比赛结果、赛后公开打分——看它能不能算赢市场。" />
+  <BaseHead title="AI 预测世界杯 · 战绩看板" description="三个 AI 同台预测世界杯，每天公开打分、虚拟组合追踪——看谁的决策更聪明。" />
 </head>
 <body>
   <Header />
@@ -40,15 +92,15 @@ else verdict = "截至目前，AI 与市场战成平手。";
     <section class="wc-hero">
       <div class="wc-sys-label">MIDNIGHT HOKAN · WORLD CUP 2026</div>
       <h1>别人看球，我让 AI 算球</h1>
-      <p class="wc-tagline">不荐彩，不喊单。一套自建的 AI 预测系统，每天赛前出预测、赛后公开认错——看它到底能不能算赢市场。</p>
+      <p class="wc-tagline">不荐彩，不喊单。一套自建的 AI 预测系统，每天赛前出预测、赛后公开认错。三个 AI 同台决策，用虚拟组合追踪谁更聪明。</p>
     </section>
 
     <!-- 对决记分牌 -->
     <section class="wc-board">
-      <div class="wc-board-label">累计命中率 · AI vs 市场</div>
+      <div class="wc-board-label">累计命中率 · AI 模型 vs 市场</div>
       <div class="wc-sb-grid">
         <div class="wc-side ai">
-          <div class="wc-who">AI 系统</div>
+          <div class="wc-who">AI 模型</div>
           <div class="wc-rate">{aiP}<span class="wc-pct">%</span></div>
           <div class="wc-detail">{AI.hit} / {AI.total} 场</div>
         </div>
@@ -74,9 +126,78 @@ else verdict = "截至目前，AI 与市场战成平手。";
       <div class="wc-verdict">{verdict}</div>
     </section>
 
+    <!-- RPS 排行榜 -->
+    <section class="wc-rps">
+      <h2 class="section-title">$ cat accuracy.log</h2>
+      <div class="wc-rps-table">
+        <div class="wc-rps-row header">
+          <span class="rps-rank">排名</span><span class="rps-name">选手</span><span class="rps-score">RPS↓</span><span class="rps-hit">命中</span>
+        </div>
+        <div class="wc-rps-row gold"><span class="rps-rank">🥇</span><span class="rps-name">本模型</span><span class="rps-score">0.0863</span><span class="rps-hit">4/4</span></div>
+        <div class="wc-rps-row silver"><span class="rps-rank">🥈</span><span class="rps-name">Polymarket</span><span class="rps-score">0.0962</span><span class="rps-hit">4/4</span></div>
+        <div class="wc-rps-row bronze"><span class="rps-rank">🥉</span><span class="rps-name">Claude</span><span class="rps-score">0.0998</span><span class="rps-hit">4/4</span></div>
+      </div>
+      <p class="wc-rps-note">RPS 越低越准 · 基于 Day 1 共 4 场 · 场次越多越有统计意义</p>
+    </section>
+
+    <!-- 虚拟组合：三 AI 擂台 -->
+    <section class="wc-portfolio">
+      <h2 class="section-title">$ cat virtual_portfolio.log</h2>
+      <p class="wc-port-desc">三个 AI 拿到同一组预测数据，各自决定怎么分配虚拟本金。<br/>同样的牌，看谁打得更聪明。不涉及真实资金。</p>
+
+      <!-- 累计盈亏对比 -->
+      <div class="wc-port-summary">
+        <div class={`wc-port-card ${cTotal.pnl >= 0 ? 'up' : 'down'}`}>
+          <div class="port-ai-name">Claude</div>
+          <div class="port-pnl">{cTotal.pnl >= 0 ? '+' : ''}{cTotal.pnl}</div>
+          <div class="port-detail">{cTotal.wins}胜{cTotal.total - cTotal.wins}负 · 本金{cTotal.capital}</div>
+        </div>
+        <div class={`wc-port-card ${dTotal.hasData ? (dTotal.pnl >= 0 ? 'up' : 'down') : 'pending'}`}>
+          <div class="port-ai-name">DeepSeek</div>
+          <div class="port-pnl">{dTotal.hasData ? (dTotal.pnl >= 0 ? '+' : '') + dTotal.pnl : '待入场'}</div>
+          <div class="port-detail">{dTotal.hasData ? `${dTotal.wins}胜${dTotal.total - dTotal.wins}负` : 'Day 2 起参赛'}</div>
+        </div>
+        <div class={`wc-port-card ${gTotal.hasData ? (gTotal.pnl >= 0 ? 'up' : 'down') : 'pending'}`}>
+          <div class="port-ai-name">GLM</div>
+          <div class="port-pnl">{gTotal.hasData ? (gTotal.pnl >= 0 ? '+' : '') + gTotal.pnl : '待入场'}</div>
+          <div class="port-detail">{gTotal.hasData ? `${gTotal.wins}胜${gTotal.total - gTotal.wins}负` : 'Day 2 起参赛'}</div>
+        </div>
+      </div>
+
+      <!-- 每日明细 -->
+      {portfolioDays.map((d) => {
+        const cr = calcPnL(d.bets.claude);
+        return (
+          <div class="wc-port-day">
+            <div class="wc-day-top">
+              <span class="wc-day-tag">{d.tag}</span>
+              <span class="wc-day-date">{d.date}</span>
+              <span class="wc-day-score">
+                Claude: <span class={cr.pnl >= 0 ? 'pnl-up' : 'pnl-down'}>{cr.pnl >= 0 ? '+' : ''}{cr.pnl}</span>
+              </span>
+            </div>
+            <div class="wc-port-bets">
+              <div class="wc-bet-row header">
+                <span class="bet-pick">选项</span><span class="bet-amount">金额</span><span class="bet-odds">赔率</span><span class="bet-result">结果</span><span class="bet-logic">逻辑</span>
+              </div>
+              {d.bets.claude.map((b) => (
+                <div class={`wc-bet-row ${b.status}`}>
+                  <span class="bet-pick">{b.pick}</span>
+                  <span class="bet-amount">{b.amount}</span>
+                  <span class="bet-odds">{b.odds}</span>
+                  <span class="bet-result">{b.status === 'win' ? '✅ +' + Math.round(b.amount * (b.odds - 1)) : b.status === 'lose' ? '❌ -' + b.amount : '⏳'}</span>
+                  <span class="bet-logic">{b.logic}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </section>
+
     <!-- 每日战报 -->
     <section class="wc-log">
-      <h2 class="section-title">$ cat scorecard.log</h2>
+      <h2 class="section-title">$ cat daily.log</h2>
       {days.map((d) => {
         const done = d.matches.filter((m) => m.res !== "wait");
         const hit = d.matches.filter((m) => m.res === "hit").length;
@@ -107,7 +228,8 @@ else verdict = "截至目前，AI 与市场战成平手。";
 
     <!-- 方法说明 -->
     <section class="wc-note">
-      <p><strong>怎么打分？</strong> 每场比赛，看预测概率最高的结果（胜/平/负）是否命中，命中记 ✓。比分预测仅作参考——单一比分本就极难算准。<strong>诚实是这件事唯一的意义</strong>：算错的，照样写在这里。</p>
+      <p><strong>怎么打分？</strong> 方向命中：看预测概率最高的结果（胜/平/负）是否命中。RPS/Brier：衡量概率校准质量，越低越准。虚拟组合：三个 AI 拿同一组数据各自决策，赛后按真实赔率结算盈亏，纯粹比较决策质量，不涉及真实资金。</p>
+      <p><strong>诚实是这件事唯一的意义</strong>：算错的，照样写在这里。Day 2 英格兰 0-0 我给了 86% 主胜——翻车了，记着。</p>
       <a href="/blog/wc-ai-prediction/" class="view-all">读连载序言：别人看球，我让 AI 算球 →</a>
     </section>
   </main>
@@ -123,7 +245,6 @@ else verdict = "截至目前，AI 与市场战成平手。";
   .wc-hero h1 { font-size: 1.8rem; font-weight: 500; margin-bottom: 0.6rem; }
   .wc-tagline { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.7; max-width: 640px; }
 
-  /* 记分牌 */
   .wc-board {
     margin: 1.8rem 0; padding: 1.8rem 1.5rem;
     background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
@@ -140,7 +261,6 @@ else verdict = "截至目前，AI 与市场战成平手。";
   .wc-pct { font-size: 0.42em; font-weight: 500; opacity: 0.7; margin-left: 2px; }
   .wc-detail { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; }
   .wc-vs { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); letter-spacing: 2px; }
-
   .wc-bars { margin-top: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem; }
   .wc-bar-row { display: grid; grid-template-columns: 48px 1fr 44px; align-items: center; gap: 0.8rem; font-size: 0.8rem; }
   .wc-lab { color: var(--text-muted); font-weight: 600; }
@@ -151,17 +271,63 @@ else verdict = "截至目前，AI 与市场战成平手。";
   .wc-val { text-align: right; color: var(--text-primary); font-weight: 600; }
   .wc-verdict { text-align: center; margin-top: 1.4rem; padding-top: 1.2rem; border-top: 1px dashed var(--border); font-size: 0.85rem; color: var(--text-secondary); }
 
+  /* RPS 排行榜 */
+  .wc-rps { padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+  .wc-rps-table { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .wc-rps-row { display: grid; grid-template-columns: 48px 1fr 80px 60px; padding: 0.6rem 1rem; font-size: 0.82rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  .wc-rps-row.header { color: var(--text-muted); font-size: 0.7rem; letter-spacing: 1px; }
+  .wc-rps-row.gold { color: var(--accent-cyan); }
+  .wc-rps-row.silver { color: var(--accent-amber); }
+  .wc-rps-row.bronze { color: var(--text-secondary); }
+  .rps-rank { font-weight: 700; }
+  .rps-score { text-align: right; font-family: monospace; }
+  .rps-hit { text-align: right; }
+  .wc-rps-note { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.6rem; }
+
+  /* 虚拟组合 */
+  .wc-portfolio { padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
+  .wc-port-desc { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1.2rem; }
+  .wc-port-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.4rem; }
+  .wc-port-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 1rem; text-align: center;
+  }
+  .wc-port-card.up { border-color: var(--accent-green); }
+  .wc-port-card.down { border-color: #e0556b; }
+  .wc-port-card.pending { border-color: var(--border); opacity: 0.5; }
+  .port-ai-name { font-size: 0.72rem; letter-spacing: 2px; color: var(--text-muted); font-weight: 600; margin-bottom: 0.4rem; }
+  .port-pnl { font-size: 1.6rem; font-weight: 600; }
+  .wc-port-card.up .port-pnl { color: var(--accent-green); }
+  .wc-port-card.down .port-pnl { color: #e0556b; }
+  .wc-port-card.pending .port-pnl { color: var(--text-muted); font-size: 1rem; }
+  .port-detail { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; }
+
+  .wc-port-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+  .wc-port-bets { overflow-x: auto; }
+  .wc-bet-row { display: grid; grid-template-columns: 1fr 55px 50px 80px 1fr; gap: 8px; padding: 0.45rem 0; font-size: 0.78rem; border-bottom: 1px solid rgba(255,255,255,0.03); align-items: center; }
+  .wc-bet-row.header { color: var(--text-muted); font-size: 0.68rem; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+  .wc-bet-row.win .bet-result { color: var(--accent-green); }
+  .wc-bet-row.lose .bet-result { color: #e0556b; }
+  .wc-bet-row.wait .bet-result { color: var(--text-muted); }
+  .bet-pick { color: var(--text-primary); }
+  .bet-amount { text-align: right; color: var(--text-secondary); }
+  .bet-odds { text-align: right; color: var(--text-muted); }
+  .bet-result { font-weight: 600; }
+  .bet-logic { color: var(--text-muted); font-size: 0.72rem; }
+  .pnl-up { color: var(--accent-green); font-weight: 600; }
+  .pnl-down { color: #e0556b; font-weight: 600; }
+
   /* 每日战报 */
   .wc-log { padding: 1.5rem 0; border-bottom: 1px solid var(--border); }
   .section-title { font-size: 0.85rem; color: var(--accent-cyan); font-weight: 400; margin-bottom: 1rem; }
-  .wc-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
+  .wc-day, .wc-port-day { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin-bottom: 0.8rem; }
   .wc-day-top { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.9rem; }
   .wc-day-tag { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; color: var(--text-primary); background: var(--bg); padding: 3px 10px; border-radius: 5px; }
   .wc-day-date { font-size: 0.72rem; color: var(--text-muted); }
   .wc-day-score { margin-left: auto; font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
   .wc-ico { letter-spacing: 1px; margin-left: 4px; }
   .wc-wait-tag { color: var(--text-muted); font-weight: 400; }
-  .wc-matches { display: flex; flex-direction: column; gap: 0; }
+  .wc-matches { display: flex; flex-direction: column; }
   .wc-m { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 0.7rem; font-size: 0.82rem; padding: 0.5rem 0; border-top: 1px solid rgba(255,255,255,0.03); }
   .wc-m:first-child { border-top: none; }
   .wc-res.hit { color: var(--accent-green); }
@@ -173,13 +339,16 @@ else verdict = "截至目前，AI 与市场战成平手。";
   .wc-p { color: var(--accent-cyan); font-weight: 600; }
 
   .wc-note { padding: 1.5rem 0; }
-  .wc-note p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem; }
+  .wc-note p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.8; margin-bottom: 0.8rem; }
   .wc-note strong { color: var(--text-primary); }
   .view-all { display: inline-block; font-size: 0.8rem; color: var(--accent-cyan); }
 
   @media (max-width: 600px) {
     .wc-sb-grid { gap: 0.4rem; }
     .wc-rate { font-size: 2.2rem; }
+    .wc-port-summary { grid-template-columns: 1fr; }
+    .wc-bet-row { grid-template-columns: 1fr 50px 45px 70px; }
+    .bet-logic { display: none; }
     .wc-m { grid-template-columns: 16px 1fr; }
     .wc-pred { grid-column: 2; text-align: left; }
   }
