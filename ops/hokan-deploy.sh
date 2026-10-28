@@ -37,7 +37,7 @@ else
   npm install --registry="$NPM_REG" --no-audit --no-fund --loglevel=error
 fi
 rm -rf dist
-npm run build --silent
+npm run build
 
 # 3) 产物关卡：首页存在且带备案号
 [[ -f dist/index.html ]] || { echo "FAIL: dist/index.html missing"; exit 1; }
