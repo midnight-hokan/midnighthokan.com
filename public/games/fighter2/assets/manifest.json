@@ -1,1 +1,5 @@
-{}
+{
+  "meilong": {
+    "c01": "assets/meilong/c01/atlas.json"
+  }
+}
