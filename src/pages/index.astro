@@ -53,6 +53,11 @@ const tagNames = {
       <a href="/blog" class="tag-pill purple">深度解读</a>
     </section>
 
+    <section class="games-bar">
+      <a href="/games/coal-dragon-fist/" class="tag-pill green">🕹 煤龙拳 v1 · 单文件街机</a>
+      <a href="/games/fighter2/" class="tag-pill cyan">🕹 煤龙拳 v2 · 8人街机</a>
+    </section>
+
     <section class="stats">
       <div class="stat-card">
         <div class="stat-label">ARTICLES</div>
@@ -147,6 +152,12 @@ const tagNames = {
     border: 1px solid var(--border);
     color: var(--text-secondary);
     letter-spacing: 1px;
+  }
+  .games-bar {
+    display: flex;
+    gap: 8px;
+    padding: 0 0 1.2rem;
+    flex-wrap: wrap;
   }
   .tag-pill:hover { text-decoration: none; }
   .tag-pill.all { border-color: var(--text-secondary); color: var(--text-primary); }
