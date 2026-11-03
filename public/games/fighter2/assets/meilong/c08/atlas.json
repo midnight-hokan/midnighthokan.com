@@ -1,1 +1,463 @@
-{"image": "atlas.png", "frameW": 128, "frameH": 128, "columns": 16, "anchor": {"x": 64, "y": 112}, "animations": {"idle": {"frames": [0, 1, 2, 3, 4, 5], "fps": 8, "loop": true}, "walkf": {"frames": [6, 7, 8, 9, 10, 11, 12, 13], "fps": 12, "loop": true}, "walkb": {"frames": [14, 15, 16, 17, 18, 19, 20, 21], "fps": 12, "loop": true}, "crouch": {"frames": [22, 23], "fps": 8, "loop": true}, "prejump": {"frames": [24], "fps": 8, "loop": false}, "jump": {"frames": [25, 26, 27, 28, 29, 30], "fps": 10, "loop": false}, "blockstun": {"frames": [31, 32], "fps": 10, "loop": false}, "crblock": {"frames": [33, 34], "fps": 10, "loop": false}, "hitstun": {"frames": [35, 36, 37], "fps": 12, "loop": false}, "airhit": {"frames": [38, 39], "fps": 8, "loop": false}, "knockdown": {"frames": [40, 41, 42], "fps": 8, "loop": false}, "dizzy": {"frames": [43, 44, 45, 46, 47, 48], "fps": 8, "loop": true}, "roll": {"frames": [49, 50, 51, 52, 53, 54], "fps": 14, "loop": false}, "maxstart": {"frames": [55, 56, 57, 58], "fps": 10, "loop": false}, "ko": {"frames": [59, 60, 61], "fps": 6, "loop": false}, "win": {"frames": [62, 63, 64, 65, 66, 67], "fps": 8, "loop": true}, "throw": {"frames": [68, 69, 70, 71, 72], "fps": 12, "loop": false}, "gc": {"frames": [73, 74, 75, 76], "fps": 12, "loop": false}, "st.lp": {"frames": [77, 78, 79], "fps": 13, "loop": false}, "st.mp": {"frames": [80, 81, 82, 83, 84], "fps": 14, "loop": false}, "st.hp": {"frames": [85, 86, 87, 88, 89, 90, 91], "fps": 13, "loop": false}, "st.lk": {"frames": [92, 93, 94, 95], "fps": 14, "loop": false}, "st.mk": {"frames": [96, 97, 98, 99, 100], "fps": 13, "loop": false}, "st.hk": {"frames": [101, 102, 103, 104, 105, 106, 107, 108], "fps": 13, "loop": false}, "cr.lp": {"frames": [109, 110, 111], "fps": 14, "loop": false}, "cr.mp": {"frames": [112, 113, 114, 115, 116], "fps": 14, "loop": false}, "cr.hp": {"frames": [117, 118, 119, 120, 121, 122, 123], "fps": 12, "loop": false}, "cr.lk": {"frames": [124, 125, 126, 127], "fps": 14, "loop": false}, "cr.mk": {"frames": [128, 129, 130, 131, 132], "fps": 12, "loop": false}, "cr.hk": {"frames": [133, 134, 135, 136, 137, 138, 139, 140], "fps": 13, "loop": false}, "j.lp": {"frames": [141, 142, 143], "fps": 13, "loop": false}, "j.mp": {"frames": [144, 145, 146, 147], "fps": 14, "loop": false}, "j.hp": {"frames": [148, 149, 150, 151, 152], "fps": 14, "loop": false}, "j.lk": {"frames": [153, 154, 155, 156], "fps": 15, "loop": false}, "j.mk": {"frames": [157, 158, 159, 160], "fps": 14, "loop": false}, "j.hk": {"frames": [161, 162, 163, 164, 165], "fps": 14, "loop": false}, "huiyan": {"frames": [166, 167, 168, 169, 170, 171, 172, 173], "fps": 10, "loop": false}, "huihe": {"frames": [174, 175, 176, 177, 178, 179, 180, 181], "fps": 12, "loop": false}, "huayan": {"frames": [182, 183, 184, 185, 186, 187, 188, 189], "fps": 10, "loop": false}, "zhenxiansao": {"frames": [190, 191, 192, 193, 194, 195, 196], "fps": 13, "loop": false}, "huiyanlong": {"frames": [197, 198, 199, 200, 201, 202, 203, 204], "fps": 8, "loop": false}}}
+{
+ "image": "atlas.png",
+ "frameW": 128,
+ "frameH": 128,
+ "columns": 16,
+ "anchor": {
+  "x": 64,
+  "y": 112
+ },
+ "animations": {
+  "idle": {
+   "frames": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "walkf": {
+   "frames": [
+    6,
+    7,
+    8,
+    8,
+    10,
+    11,
+    12,
+    13
+   ],
+   "fps": 12,
+   "loop": true
+  },
+  "walkb": {
+   "frames": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    19,
+    21
+   ],
+   "fps": 12,
+   "loop": true
+  },
+  "crouch": {
+   "frames": [
+    22,
+    23
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "prejump": {
+   "frames": [
+    24
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "jump": {
+   "frames": [
+    25,
+    26,
+    26,
+    28,
+    29,
+    30
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "blockstun": {
+   "frames": [
+    31,
+    32
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "crblock": {
+   "frames": [
+    33,
+    33
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "hitstun": {
+   "frames": [
+    35,
+    36,
+    37
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "airhit": {
+   "frames": [
+    38,
+    39
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "knockdown": {
+   "frames": [
+    40,
+    41,
+    42
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "dizzy": {
+   "frames": [
+    43,
+    44,
+    45,
+    46,
+    47,
+    48
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "roll": {
+   "frames": [
+    49,
+    49,
+    51,
+    51,
+    54,
+    54
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "maxstart": {
+   "frames": [
+    55,
+    56,
+    57,
+    58
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "ko": {
+   "frames": [
+    59,
+    60,
+    61
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "win": {
+   "frames": [
+    62,
+    63,
+    63,
+    65,
+    66,
+    67
+   ],
+   "fps": 8,
+   "loop": true
+  },
+  "throw": {
+   "frames": [
+    68,
+    69,
+    70,
+    70,
+    70
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "gc": {
+   "frames": [
+    74,
+    74,
+    75,
+    76
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "st.lp": {
+   "frames": [
+    77,
+    78,
+    79
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "st.mp": {
+   "frames": [
+    80,
+    81,
+    82,
+    83,
+    84
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "st.hp": {
+   "frames": [
+    85,
+    85,
+    87,
+    88,
+    89,
+    90,
+    91
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "st.lk": {
+   "frames": [
+    92,
+    93,
+    94,
+    94
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "st.mk": {
+   "frames": [
+    96,
+    97,
+    98,
+    99,
+    100
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "st.hk": {
+   "frames": [
+    104,
+    104,
+    104,
+    104,
+    105,
+    106,
+    106,
+    106
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "cr.lp": {
+   "frames": [
+    109,
+    110,
+    111
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "cr.mp": {
+   "frames": [
+    112,
+    113,
+    114,
+    115,
+    116
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "cr.hp": {
+   "frames": [
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    122
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "cr.lk": {
+   "frames": [
+    125,
+    125,
+    125,
+    127
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "cr.mk": {
+   "frames": [
+    128,
+    129,
+    130,
+    130,
+    130
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "cr.hk": {
+   "frames": [
+    133,
+    134,
+    134,
+    136,
+    137,
+    137,
+    140,
+    140
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "j.lp": {
+   "frames": [
+    141,
+    142,
+    143
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "j.mp": {
+   "frames": [
+    144,
+    144,
+    146,
+    147
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "j.hp": {
+   "frames": [
+    148,
+    148,
+    150,
+    151,
+    152
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "j.lk": {
+   "frames": [
+    153,
+    154,
+    155,
+    156
+   ],
+   "fps": 15,
+   "loop": false
+  },
+  "j.mk": {
+   "frames": [
+    157,
+    157,
+    160,
+    160
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "j.hk": {
+   "frames": [
+    164,
+    164,
+    164,
+    164,
+    165
+   ],
+   "fps": 14,
+   "loop": false
+  },
+  "huiyan": {
+   "frames": [
+    166,
+    166,
+    168,
+    169,
+    169,
+    171,
+    172,
+    173
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "huihe": {
+   "frames": [
+    174,
+    175,
+    175,
+    177,
+    178,
+    179,
+    179,
+    179
+   ],
+   "fps": 12,
+   "loop": false
+  },
+  "huayan": {
+   "frames": [
+    185,
+    185,
+    185,
+    185,
+    186,
+    187,
+    188,
+    189
+   ],
+   "fps": 10,
+   "loop": false
+  },
+  "zhenxiansao": {
+   "frames": [
+    190,
+    191,
+    191,
+    193,
+    194,
+    194,
+    196
+   ],
+   "fps": 13,
+   "loop": false
+  },
+  "huiyanlong": {
+   "frames": [
+    198,
+    198,
+    198,
+    200,
+    201,
+    202,
+    202,
+    204
+   ],
+   "fps": 8,
+   "loop": false
+  }
+ }
+}
